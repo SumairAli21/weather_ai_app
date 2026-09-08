@@ -1,16 +1,29 @@
-# weatherapp
+# 🌤️ AI Weather App (Powered by Gemini)
 
-A new Flutter project.
+A smart, beautifully designed weather application built with Flutter that not only shows real-time weather data but also provides intelligent, contextual wardrobe and activity tips using Google's Gemini AI.
 
-## Getting Started
+## 🚀 Features
+* **Real-time Weather Data:** Fetches accurate current weather and temperatures via OpenWeather API.
+* **Gemini AI Integration:** Generates clever, context-aware advice based on current weather conditions (e.g., "Grab an umbrella!" or "Perfect weather for a run!").
+* **Rich UI/UX:** 
+  * Glassmorphism UI components.
+  * Real-time typing animation for AI responses (`animated_text_kit`).
+  * Smooth loading states (`flutter_spinkit`).
+* **Robust Error Handling:** Graceful fallbacks for network timeouts and invalid city names.
 
-This project is a starting point for a Flutter application.
+## 🛠️ Tech Stack
+* **Framework:** Flutter / Dart
+* **APIs:** Google Generative AI (Gemini 1.5 Flash), OpenWeatherMap
+* **Packages:** `google_generative_ai`, `flutter_dotenv`, `http`, `animated_text_kit`, `flutter_spinkit`
 
-A few resources to get you started if this is your first Flutter project:
+## 📸 Demo
+<!-- Yahan apna GIF link daalna mat bhoolna -->
+![App Demo](link_to_your_gif_here)
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## ⚙️ How to Run Locally
+1. Clone the repository.
+2. Run `flutter pub get`.
+3. Create a `.env` file in the root directory and add your API keys:
+   ```env
+   GEMINI_API_KEY=your_gemini_key
+   WEATHER_API_KEY=your_openweather_key
