@@ -13,8 +13,6 @@ class GetWeatherApi {
     var response = await http.get(url);
     var responseBody = jsonDecode(response.body);
 
-    print("Response Status: ${response.statusCode}");
-    print("Response Body: $responseBody");
 
     if (response.statusCode == 200) {
       return WeatherModel.fromJson(responseBody);

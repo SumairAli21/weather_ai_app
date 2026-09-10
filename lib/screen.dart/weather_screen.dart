@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:weatherapp/models/weather_model.dart';
+import 'package:weatherapp/services/Ai_service.dart';
 import 'package:weatherapp/widgets/weather_api.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:animated_text_kit/animated_text_kit.dart';
+import 'dart:async'; // TimeoutException ke liye zaroori hai
 
 class WeatherScreen extends StatefulWidget {
   const WeatherScreen({super.key});
@@ -14,9 +18,14 @@ class _HomeScreenState extends State<WeatherScreen> {
   WeatherModel? weatherData;
 
   bool isLoading = false;
+  bool isailoading = false;
+  String? aiinsights;
 
   final String apiKey = '7b3b73136f46fc58b8e6d4e5c15dab50';
   late GetWeatherApi weatherApi;
+
+  final AiService aiservice =
+      AiService('AQ.Ab8RN6JkZ83K33x-U-HEjp-3GV26pbwn1AUwTY8XG49ZQXgGNA');
 
   @override
   void initState() {
@@ -26,25 +35,50 @@ class _HomeScreenState extends State<WeatherScreen> {
 
   Future<void> fetchWeather() async {
     String cityName = cityCont.text.trim();
+    if (cityName.isEmpty) return; // Empty search roko
     cityCont.clear();
+
+    FocusScope.of(context).unfocus();
 
     setState(() {
       isLoading = true;
+      aiinsights = null;
     });
 
     try {
-      WeatherModel weather = await weatherApi.getWeatherApi(cityName);
+      WeatherModel weather = await weatherApi
+          .getWeatherApi(cityName)
+          .timeout(Duration(seconds: 45));
+
+      if (!mounted) return;
+
       setState(() {
         weatherData = weather;
         isLoading = false;
+        isailoading = true;
+      });
+
+      String insights = await aiservice.getweatherinsights(weather);
+
+      setState(() {
+        aiinsights = insights;
+        isailoading = false;
       });
     } catch (error) {
       setState(() {
         isLoading = false;
+        isailoading = false;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Failed to load weather data :('),
+
+String errorMessage = 'City not found ya weather data load nahi hua :(';
+      if (error is TimeoutException) {
+        errorMessage = 'Connection timeout! Apna internet check karein.';
+      }
+      ScaffoldMessenger.of(context).showSnackBar( SnackBar(
+        content: Text(errorMessage),
+        backgroundColor: Colors.redAccent,
+        behavior: SnackBarBehavior.floating,
       ));
     }
   }
@@ -175,6 +209,64 @@ class _HomeScreenState extends State<WeatherScreen> {
                                   .copyWith(
                                       color: Colors.white.withOpacity(0.9)),
                             ),
+                            const SizedBox(height: 30),
+                            if (isailoading)
+                              Container(
+                                  margin: EdgeInsets.symmetric(horizontal: 20),
+                                  padding: EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                      color: Colors.black.withOpacity(0.6),
+                                      borderRadius: BorderRadius.circular(20),
+                                      border: Border.all(
+                                          color:
+                                              Colors.white.withOpacity(0.2))),
+                                  child: const Row(children: [
+                                    Icon(Icons.auto_awesome,
+                                        color: Colors.amber, size: 24),
+                                    SizedBox(width: 15),
+                                    SpinKitThreeBounce(
+                                      color: Colors.white70,
+                                      size: 20.0,
+                                    )
+                                  ]))
+                            else if (aiinsights != null)
+                              Container(
+                                margin:
+                                    const EdgeInsets.symmetric(horizontal: 20),
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.6),
+                                  borderRadius: BorderRadius.circular(15),
+                                  border: Border.all(
+                                      color: Colors.white.withOpacity(0.2)),
+                                ),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Icon(Icons.auto_awesome,
+                                        color: Colors.amber, size: 24),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: AnimatedTextKit(
+                                        isRepeatingAnimation: false,
+                                        displayFullTextOnTap: true,
+                                        animatedTexts: [
+                                          TyperAnimatedText(
+                                            aiinsights!,
+                                            speed: const Duration(
+                                                milliseconds: 40),
+                                            textStyle: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 15,
+                                              height: 1.4,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                           ],
                         )
                       : const Text(
